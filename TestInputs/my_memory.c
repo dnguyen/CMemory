@@ -112,12 +112,39 @@ void my_free(void *ptr) {
             while (current != NULL) {
                 if (current->start_ptr == start && current->used == 1) {
                     printf("\t[FOUND NODE] start=%d size=%d\n", start, current->size);
-                    // Look at adjacent nodes to see if there are holes we can merge.
+                    // Look at adjacent nodes to see if there are holes we can merge all nodes into current node.
                     if (current->next->used == 0 || current->prev->used == 0) {
-                        // TODO
+                        // If both nodes are free, merge all 3
+                        if (current->next->used == 0 && current->next->used == 0) {
+                            printf("\t\t[MERGING BOTH NODES]\n");
+                            current->start_ptr = current->prev->start_ptr;
+                            current->size = current->prev->size + current->next->size + current->size;
+                            current->prev = current->prev->prev;
+                            current->next = current->next->next;
+                            freeMemoryNodes->size -= 2;
+                        }
+                        // If only right node is free
+                        else if (current->next->used == 0) {
+                            printf("\t\t[MERGING RIGHT NODE]\n");
+                            current->size = current->next->size + current->size;
+                            current->next = current->next->next;
+                            freeMemoryNodes->size--;
+                        }
+                        // If only left node is free
+                        else if (current->prev->used == 0) {
+                            printf("\t\t[MERGING LEFT NODE]\n");
+                            current->start_ptr = current->prev->start_ptr;
+                            current->size = current->prev->size + current->size;
+                            current->prev = current->prev->prev;
+                            freeMemoryNodes->size--;
+                        }
+                        current->used = 0;
+
                     } else {
                         current->used = 0;
                     }
+                    printList(freeMemoryNodes, 0);
+
                     return;
                 }
                 current = current->next;
