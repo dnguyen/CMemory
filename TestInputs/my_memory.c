@@ -71,11 +71,13 @@ void *my_malloc(int size) {
                 if (current->size >= fullSize && current->used == 0) {
                     // Check for exact fit
                     if (current->size == fullSize) {
-
+                        current->used = 1;
+                        return (char *) MEM_START + current->start_ptr + 4;
                     } else {
-                        // Split the free node and add the used node to the tail
-                        // ex. request 2: (=: free memory, x: used memory)
-                        //      [===10===] -> [===8===][x2x]
+                        // If there is still memory remaining in the free node then
+                        // Split the free node and add remaining memory as a node to the tail
+                        // ex. request 2:
+                        //      [===10===] -> [x2x][===8===] (=: free memory, x: used memory)
                         MemoryNode *remainingNode = malloc(sizeof(MemoryNode));
                         remainingNode->size = current->size - fullSize;
                         remainingNode->start_ptr = current->start_ptr + fullSize;
