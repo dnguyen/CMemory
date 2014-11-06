@@ -7,6 +7,7 @@
 #define BUDDY_SYSTEM 3
 
 // Data Structures
+//  Doubly Linked list to keep track of memory
 typedef struct MemoryNode MemoryNode;
 struct MemoryNode {
     MemoryNode *prev;
@@ -17,7 +18,7 @@ struct MemoryNode {
 };
 
 typedef struct MemoryList MemoryList;
-typedef struct MemoryList {
+struct MemoryList {
     MemoryNode *head;
     MemoryNode *tail;
     int size;
@@ -30,7 +31,7 @@ void listDelete(MemoryList*, MemoryNode*);
 void printList(MemoryList*, int);
 void split(MemoryList*, MemoryNode*);
 
-// doubly Linked list to keep track of holes
+// Globals
 MemoryList *freeMemoryNodes;
 
 int MALLOC_TYPE = 0;
@@ -43,9 +44,9 @@ void setup(int malloc_type, int mem_size, void* start_of_memory) {
     MEM_SIZE = mem_size;
     MEM_START = start_of_memory;
 
-    MemoryNode *newNode = malloc(sizeof(MemoryNode));
-
+    // All allocation policies will allocate one node of size mem_size at address 0
     freeMemoryNodes = malloc(sizeof(MemoryList));
+    MemoryNode *newNode = malloc(sizeof(MemoryNode));
     newNode->size = mem_size;
     newNode->start_ptr = 0;
     newNode->used = 0;
@@ -103,31 +104,31 @@ void *my_malloc(int size) {
                 int temp_hole = current->size - fullSize;
 
                 // Check for perfect fit
-                if(temp_hole == 0 && current->used == 0){
+                if (temp_hole == 0 && current->used == 0) {
                     current->used = 1;
                     return (char *) MEM_START + current->start_ptr + 4;
-                } else if ((temp_hole > 0) && (temp_hole < hole) && current->used == 0){
+                } else if ((temp_hole > 0) && (temp_hole < hole) && current->used == 0) {
                     hole = temp_hole;
                     best = current;
                 }
                 current = current->next;
             }
-            if(best != NULL){
-                    // If there is still memory remaining in the free node then
-                    // Split the free node and add remaining memory as a node to the tail
-                    MemoryNode *remainingNode = malloc(sizeof(MemoryNode));
-                    remainingNode->size = best->size - fullSize;
-                    remainingNode->start_ptr = best->start_ptr + fullSize;
-                    remainingNode->used = 0;
-                    listTailInsert(freeMemoryNodes, remainingNode);
-                    //Allocate the full size to the found node
-                    best->size = fullSize;
-                    best->used = 1;
-                    printList(freeMemoryNodes, 0);
-                    printf("\t[RETURNING my_malloc] %d\n", (int)(best->start_ptr + 4));
-                    // C doesn't allow pointer arithmetic on (void *), so cast to (char *)
-                    return (char *)MEM_START + best->start_ptr + 4;
-                }
+            if (best != NULL) {
+                // If there is still memory remaining in the free node then
+                // Split the free node and add remaining memory as a node to the tail
+                MemoryNode *remainingNode = malloc(sizeof(MemoryNode));
+                remainingNode->size = best->size - fullSize;
+                remainingNode->start_ptr = best->start_ptr + fullSize;
+                remainingNode->used = 0;
+                listTailInsert(freeMemoryNodes, remainingNode);
+                //Allocate the full size to the found node
+                best->size = fullSize;
+                best->used = 1;
+                printList(freeMemoryNodes, 0);
+                printf("\t[RETURNING my_malloc] %d\n", (int)(best->start_ptr + 4));
+                // C doesn't allow pointer arithmetic on (void *), so cast to (char *)
+                return (char *)MEM_START + best->start_ptr + 4;
+            }
             break;
         }
         case WORST_FIT: {
@@ -146,22 +147,22 @@ void *my_malloc(int size) {
                 }
                 current = current->next;
             }
-            if(worst != NULL){
-                    // If there is still memory remaining in the free node then
-                    // Split the free node and add remaining memory as a node to the tail
-                    MemoryNode *remainingNode = malloc(sizeof(MemoryNode));
-                    remainingNode->size = worst->size - fullSize;
-                    remainingNode->start_ptr = worst->start_ptr + fullSize;
-                    remainingNode->used = 0;
-                    listTailInsert(freeMemoryNodes, remainingNode);
-                    //Allocate the full size to the found node
-                    worst->size = fullSize;
-                    worst->used = 1;
-                    printList(freeMemoryNodes, 0);
-                    printf("\t[RETURNING my_malloc] %d\n", (int)(worst->start_ptr + 4));
-                    // C doesn't allow pointer arithmetic on (void *), so cast to (char *)
-                    return (char *)MEM_START + worst->start_ptr + 4;
-                }
+            if (worst != NULL){
+                // If there is still memory remaining in the free node then
+                // Split the free node and add remaining memory as a node to the tail
+                MemoryNode *remainingNode = malloc(sizeof(MemoryNode));
+                remainingNode->size = worst->size - fullSize;
+                remainingNode->start_ptr = worst->start_ptr + fullSize;
+                remainingNode->used = 0;
+                listTailInsert(freeMemoryNodes, remainingNode);
+                //Allocate the full size to the found node
+                worst->size = fullSize;
+                worst->used = 1;
+                printList(freeMemoryNodes, 0);
+                printf("\t[RETURNING my_malloc] %d\n", (int)(worst->start_ptr + 4));
+                // C doesn't allow pointer arithmetic on (void *), so cast to (char *)
+                return (char *)MEM_START + worst->start_ptr + 4;
+            }
             break;
         }
 
@@ -169,7 +170,7 @@ void *my_malloc(int size) {
             // Default to an error
             void *rtrVal = (void*) -1;
 
-            // Find smallest base 2 size that can accomdate the request
+            // Find smallest base 2 size that can fulfill the request
             // Once we find the smallest size, try to find a free node
             // with that exact size.
             int buddySize = 0;
@@ -303,99 +304,13 @@ void split(MemoryList* list, MemoryNode* node) {
 }
 
 void my_free(void *ptr) {
-    // Calculate int pointer value with some fancy pointer arithmetic...
+
     int start = (char*) ptr - (char*) MEM_START - 4;
-    printf("[MY_FREE] ptr=%lu\n", start);
-    printf("\tMEM_START=%lu ptr=%lu\n", MEM_START, ptr);
+
+    printf("[MY_FREE] ptr=%d\n", start);
     switch (MALLOC_TYPE) {
-        case FIRST_FIT: {
-            MemoryNode *current = freeMemoryNodes->head;
-            while (current != NULL) {
-                if (current->start_ptr == start && current->used == 1) {
-                    printf("\t[FOUND NODE] start=%d size=%d\n", start, current->size);
-                    // Look at adjacent nodes to see if there are holes we can merge all nodes into current node.
-                    if (current->next->used == 0 || current->prev->used == 0) {
-                        // If both nodes are free, merge all 3
-                        if (current->next->used == 0 && current->next->used == 0) {
-                            printf("\t\t[MERGING BOTH NODES]\n");
-                            current->start_ptr = current->prev->start_ptr;
-                            current->size = current->prev->size + current->next->size + current->size;
-                            current->prev = current->prev->prev;
-                            current->next = current->next->next;
-                            freeMemoryNodes->size -= 2;
-                        }
-                        // If only right node is free
-                        else if (current->next->used == 0) {
-                            printf("\t\t[MERGING RIGHT NODE]\n");
-                            current->size = current->next->size + current->size;
-                            current->next = current->next->next;
-                            freeMemoryNodes->size--;
-                        }
-                        // If only left node is free
-                        else if (current->prev->used == 0) {
-                            printf("\t\t[MERGING LEFT NODE]\n");
-                            current->start_ptr = current->prev->start_ptr;
-                            current->size = current->prev->size + current->size;
-                            current->prev = current->prev->prev;
-                            freeMemoryNodes->size--;
-                        }
-                        current->used = 0;
-
-                    } else {
-                        current->used = 0;
-                    }
-                    printList(freeMemoryNodes, 0);
-
-                    return;
-                }
-                current = current->next;
-            }
-            break;
-        }
-        case BEST_FIT:{
-            MemoryNode *current = freeMemoryNodes->head;
-            while (current != NULL) {
-                if (current->start_ptr == start && current->used == 1) {
-                    printf("\t[FOUND NODE] start=%d size=%d\n", start, current->size);
-                    // Look at adjacent nodes to see if there are holes we can merge all nodes into current node.
-                    if (current->next->used == 0 || current->prev->used == 0) {
-                        // If both nodes are free, merge all 3
-                        if (current->next->used == 0 && current->next->used == 0) {
-                            printf("\t\t[MERGING BOTH NODES]\n");
-                            current->start_ptr = current->prev->start_ptr;
-                            current->size = current->prev->size + current->next->size + current->size;
-                            current->prev = current->prev->prev;
-                            current->next = current->next->next;
-                            freeMemoryNodes->size -= 2;
-                        }
-                        // If only right node is free
-                        else if (current->next->used == 0) {
-                            printf("\t\t[MERGING RIGHT NODE]\n");
-                            current->size = current->next->size + current->size;
-                            current->next = current->next->next;
-                            freeMemoryNodes->size--;
-                        }
-                        // If only left node is free
-                        else if (current->prev->used == 0) {
-                            printf("\t\t[MERGING LEFT NODE]\n");
-                            current->start_ptr = current->prev->start_ptr;
-                            current->size = current->prev->size + current->size;
-                            current->prev = current->prev->prev;
-                            freeMemoryNodes->size--;
-                        }
-                        current->used = 0;
-
-                    } else {
-                        current->used = 0;
-                    }
-                    printList(freeMemoryNodes, 0);
-
-                    return;
-                }
-                current = current->next;
-            }
-            break;
-        }
+        case FIRST_FIT:
+        case BEST_FIT:
         case WORST_FIT: {
             MemoryNode *current = freeMemoryNodes->head;
             while (current != NULL) {
@@ -438,14 +353,11 @@ void my_free(void *ptr) {
                 }
                 current = current->next;
             }
-        break;
+            break;
         }
 
         case BUDDY_SYSTEM: {
-            // Find ptr in list
-            int asdf = (char*)ptr;
-            int testptr = (char*) ptr - (char *) MEM_START;
-            printf("\t[testptr %d]\n", asdf);
+            // Find the memory location in the list that needs to be freed
             printf("\t[FIND start_ptr] %d\n", start);
             MemoryNode *currentNode = freeMemoryNodes->head;
             MemoryNode *nodeToFree = NULL;
@@ -462,15 +374,18 @@ void my_free(void *ptr) {
                 printf("\t\t[start_ptr=%d size=%d used=%d]\n", nodeToFree->start_ptr, nodeToFree->size, nodeToFree->used);
                 nodeToFree->used = 0;
                 printList(freeMemoryNodes, 0);
-                // Look to the right node, if it's not used and has the same size then merge
+                // Iterate through the list to find nodes that can be merged
+                // Look at the right node, if it has the same size and is unused
+                // then it can be merged into the current node. Everytime we merge,
+                // go back to the beginning of the list and check again
                 currentNode = freeMemoryNodes->head;
-                 while (currentNode != NULL) {
+                while (currentNode != NULL) {
                     if (currentNode->next != NULL && currentNode->next->size == currentNode->size && currentNode->next->used == 0 && currentNode->used == 0) {
                         printf("\t[MERGING]\n");
                         printf("\t\t[start_ptr=%d size=%d used=%d]\n", currentNode->start_ptr, currentNode->size, currentNode->used);
                         currentNode->size = currentNode->size + currentNode->next->size;
                         currentNode->next = currentNode->next->next;
-                        //free(currentNode->next);
+
                         printList(freeMemoryNodes, 0);
                         currentNode = freeMemoryNodes->head;
                         freeMemoryNodes->size--;
@@ -544,7 +459,7 @@ void printList(MemoryList *list, int showNextPrev) {
         if (showNextPrev == 1) {
             printf("\t\t[p=%d, %d, n=%d]\n", (node->prev != NULL) ? node->prev->size : -1, node->size, (node->next != NULL) ? node->next->size : -1);
         } else {
-            printf("\t\t[size=%d, ptr=%d, used=%d]\n", node->size, (int *)node->start_ptr, node->used);
+            printf("\t\t[size=%d, ptr=%d, used=%d]\n", node->size, node->start_ptr, node->used);
         }
         node = node->next;
     }
