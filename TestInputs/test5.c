@@ -41,7 +41,7 @@ int main()
         fprintf(pFile, "This size can not be allocated!");
     else
     {
-    	fprintf(pFile, "start of chunk c: %f K\n",(float)((int)c-(int)RAM)/1024);
+    	fprintf(pFile, "start of the chunk c: %f K\n",(float)((int)c-(int)RAM)/1024);
     	fprintf(pFile, "End of the chunk c: %f K\n\n",(float)((int)c+size-(int)RAM)/1024);
     }
 
@@ -51,7 +51,7 @@ int main()
         fprintf(pFile, "This size can not be allocated!");
     else
     {
-    	fprintf(pFile, "start of chunk d: %f K\n",(float)((int)d-(int)RAM)/1024);
+    	fprintf(pFile, "start of the chunk d: %f K\n",(float)((int)d-(int)RAM)/1024);
     	fprintf(pFile, "End of the chunk d: %f K\n\n",(float)((int)d+size-(int)RAM)/1024);
     }
 
@@ -61,7 +61,7 @@ int main()
         fprintf(pFile, "This size can not be allocated!");
     else
     {
-    	fprintf(pFile, "start of chunk e: %f K\n",(float)((int)e-(int)RAM)/1024);
+    	fprintf(pFile, "start of the chunk e: %f K\n",(float)((int)e-(int)RAM)/1024);
     	fprintf(pFile, "End of the chunk e: %f K\n\n",(float)((int)e+size-(int)RAM)/1024);
     }
 
@@ -71,7 +71,7 @@ int main()
         fprintf(pFile, "This size can not be allocated!");
     else
     {
-    	fprintf(pFile, "start of chunk f: %f K\n",(float)((int)f-(int)RAM)/1024);
+    	fprintf(pFile, "start of the chunk f: %f K\n",(float)((int)f-(int)RAM)/1024);
     	fprintf(pFile, "End of the chunk f: %f K\n\n",(float)((int)f+size-(int)RAM)/1024);
     }
     fclose (pFile);

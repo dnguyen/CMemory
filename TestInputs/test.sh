@@ -47,6 +47,8 @@ function testBuddySystem {
     verify test5_output.txt ../TestOutputs/test5_output.txt
 }
 
+./build.sh
+
 if [ "$POLICY" = "all" ]
 then
     echo "[TESTING ALL POLICIES]"
