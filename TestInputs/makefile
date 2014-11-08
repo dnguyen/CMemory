@@ -23,3 +23,6 @@ compile_7: $(FILES)
 
 compile_8: $(FILES)
 	gcc test8.c $(FILES) -g -o memory_test_8
+
+compile_9: $(FILES)
+	gcc test9.c $(FILES) -g -o memory_test_9
