@@ -6,6 +6,7 @@ TestInputs/memory_test_5
 TestInputs/memory_test_6
 TestInputs/memory_test_7
 TestInputs/memory_test_8
+TestInputs/memory_test_9
 TestInputs/test1_output.txt
 TestInputs/test2_output.txt
 TestInputs/test3_output.txt
@@ -14,3 +15,4 @@ TestInputs/test5_output.txt
 TestInputs/test6_output.txt
 TestInputs/test7_output.txt
 TestInputs/test8_output.txt
+TestInputs/test9_output.txt

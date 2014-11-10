@@ -64,7 +64,7 @@ int main()
     	fprintf(pFile, "End of the chunk e: %d\n\n",(int)(e+size-RAM));
     }
 
-	my_free(c);
+	my_free(a);
 
     size=20*1024;
 	void* f=my_malloc(size);
@@ -105,7 +105,7 @@ int main()
     	fprintf(pFile, "start of the chunk i: %d\n",(int)(i-RAM));
     	fprintf(pFile, "End of the chunk i: %d\n\n",(int)(i+size-RAM));
     }
-    
+
     size=3*1024;
 	void* j=my_malloc(size);
     if ((int)j==-1)
